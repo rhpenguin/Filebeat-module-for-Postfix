@@ -1,0 +1,11 @@
+module_version: 1.0
+
+var:
+  - name: paths
+    default:
+      - /var/log/mail.log*
+
+ingest_pipeline: ingest/default.json
+input: config/mail.yml
+
+requires.processors:

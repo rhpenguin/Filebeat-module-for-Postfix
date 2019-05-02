@@ -1,0 +1,36 @@
+{
+  "description": "Pipeline for parsing postfix mail.log.",
+  "processors": [{
+    "grok": {
+      "field": "message",
+      "patterns":[
+        "%{SYSLOGTIMESTAMP:postfix.mail.time} %{DATA:postfix.mail.mail_server} postfix/%{DATA:postfix.mail.process}\\[%{NUMBER:postfix.mail.pid}\\]: %{BASE16NUM:postfix.mail.queue_id}: %{LOGLEVEL}: header %{DATA:postfix.mail.header}: %{DATA:postfix.mail.header_display_name} <%{DATA:postfix.mail.header_from_email}> from %{DATA:postfix.mail.remote_host}\\[%{IP:postfix.mail.remote_ip}\\]; from=<%{DATA:postfix.mail.from_email}> to=<%{DATA:postfix.mail.to_email}>",
+        "%{SYSLOGTIMESTAMP:postfix.mail.time} %{DATA:postfix.mail.mail_server} postfix/%{DATA:postfix.mail.process}\\[%{NUMBER:postfix.mail.pid}\\]: %{BASE16NUM:postfix.mail.queue_id}: %{LOGLEVEL}: header %{DATA:postfix.mail.header}: %{DATA:postfix.mail.mime_type};(\\?)* name=\"%{DATA:postfix.mail.mime_name}\" from %{DATA:postfix.mail.remote_host}\\[%{IP:postfix.mail.remote_ip}\\]; from=<%{DATA:postfix.mail.from_email}> to=<%{DATA:postfix.mail.to_email}>",
+        "%{SYSLOGTIMESTAMP:postfix.mail.time} %{DATA:postfix.mail.mail_server} postfix/%{DATA:postfix.mail.process}\\[%{NUMBER:postfix.mail.pid}\\]: %{BASE16NUM:postfix.mail.queue_id}: %{LOGLEVEL}: header %{DATA:postfix.mail.header}: %{DATA:postfix.mail.mime_type};(\\?)* filename=\"%{DATA:postfix.mail.mime_filename}\" from %{DATA:postfix.mail.remote_host}\\[%{IP:postfix.mail.remote_ip}\\]; from=<%{DATA:postfix.mail.from_email}> to=<%{DATA:postfix.mail.to_email}>"
+        ],
+      "ignore_missing": false,
+      "ignore_failure": false
+    }
+  }, {
+      "date": {
+        "field": "postfix.mail.time",
+        "target_field": "postfix.mail.time",
+        "formats": [
+            "MMM  d HH:mm:ss",
+            "MMM dd HH:mm:ss"
+        ],
+        "ignore_failure": true
+      }
+  }, {
+      "remove": {
+        "field": "message",
+        "ignore_missing": true,
+        "ignore_failure": true
+      }
+  }],
+  "on_failure" : [{
+    "drop" : {
+      "ignore_failure" : true
+    }
+  }]
+}
